@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPF, EEG e Estresse — José Antônio Amador · PPGNC/UFPA</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================== TOKENS ============================== */
+:root {
+  --bg:            #06101f;
+  --surface:       #0a1628;
+  --surface-2:     #0e1d35;
+  --surface-3:     #13243f;
+  --border:        #1a2f52;
+  --divider:       #142440;
+  --text:          #d2e3f5;
+  --muted:         #6487a8;
+  --faint:         #2d4a68;
+  --primary:       #4fc3f7;
+  --primary-glow:  rgba(79,195,247,.18);
+  --secondary:     #b39ddb;
+  --secondary-glow:rgba(179,157,219,.15);
+  --green:         #69f0ae;
+  --amber:         #ffd54f;
+  --red:           #ef5350;
+  --red-dim:       rgba(239,83,80,.15);
+  --green-dim:     rgba(105,240,174,.12);
+  --amber-dim:     rgba(255,213,79,.12);
+  --radius-sm:.4rem; --radius-md:.65rem; --radius-lg:1rem; --radius-xl:1.5rem;
+  --shadow-md: 0 4px 24px rgba(0,0,0,.45);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,.55);
+  --font-display:'Cormorant Garamond',Georgia,serif;
+  --font-body:'DM Sans','Helvetica Neue',sans-serif;
+}
+[data-theme="light"] {
+  --bg:       #f0f5fb;
+  --surface:  #ffffff;
+  --surface-2:#f5f8fd;
+  --surface-3:#eaf0fa;
+  --border:   #c4d5e8;
+  --divider:  #d8e5f2;
+  --text:     #0d1f36;
+  --muted:    #4a6880;
+  --faint:    #b0c8de;
+  --primary:  #0277bd;
+  --primary-glow:rgba(2,119,189,.12);
+  --secondary:#7b57c8;
+  --secondary-glow:rgba(123,87,200,.1);
+  --green:    #00897b;
+  --amber:    #f57f17;
+  --red:      #c62828;
+  --red-dim:  rgba(198,40,40,.1);
+  --green-dim:rgba(0,137,123,.09);
+  --amber-dim:rgba(245,127,23,.1);
+  --shadow-md:0 4px 24px rgba(0,0,0,.1);
+  --shadow-lg:0 12px 48px rgba(0,0,0,.14);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:4.5rem;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:clamp(1rem,.95rem + .2vw,1.1rem);line-height:1.72;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.12;text-wrap:balance}
+p,li{text-wrap:pretty}
+::selection{background:var(--primary-glow)}
+
+/* ============================== FADE IN ============================== */
+.fi{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.fi.visible{opacity:1;transform:none}
+.fi-d1{transition-delay:.1s} .fi-d2{transition-delay:.2s} .fi-d3{transition-delay:.3s}
+.fi-d4{transition-delay:.4s} .fi-d5{transition-delay:.5s}
+
+/* ============================== NAV ============================== */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1100px;margin:auto;padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.nav-brand{font-family:var(--font-display);font-size:1.05rem;font-weight:600;color:var(--primary);letter-spacing:.01em;white-space:nowrap}
+.nav-links{display:flex;gap:.15rem;flex-wrap:wrap}
+.nav-links a{font-size:.78rem;font-weight:500;color:var(--muted);text-decoration:none;padding:.3rem .65rem;border-radius:var(--radius-sm);transition:color .15s,background .15s}
+.nav-links a:hover{color:var(--text);background:var(--surface-2)}
+.theme-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:var(--radius-sm);padding:.3rem .55rem;cursor:pointer;display:flex;align-items:center;transition:color .15s,border-color .15s}
+.theme-btn:hover{color:var(--primary);border-color:var(--primary)}
+
+/* ============================== HERO ============================== */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6rem 1.5rem 4rem;overflow:hidden;text-align:center}
+.hero-bg{position:absolute;inset:0;pointer-events:none;opacity:.18}
+.hero-bg svg{width:100%;height:100%}
+.hero-eyebrow{font-family:var(--font-body);font-size:.78rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);margin-bottom:1.2rem}
+.hero-title{font-size:clamp(2.2rem,1rem + 4vw,5rem);font-weight:300;color:var(--text);max-width:860px;line-height:1.08;margin-bottom:1.2rem}
+.hero-title em{font-style:italic;color:var(--primary)}
+.hero-subtitle{font-size:clamp(1rem,.9rem + .5vw,1.35rem);font-weight:300;color:var(--muted);max-width:680px;margin-bottom:3rem;font-style:italic;font-family:var(--font-display)}
+.hero-meta{display:flex;flex-direction:column;gap:.55rem;align-items:center}
+.hero-chip{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-full,999px);padding:.35rem 1rem;font-size:.85rem;color:var(--muted)}
+.hero-chip strong{color:var(--text);font-weight:500}
+.hero-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--primary);flex-shrink:0}
+.hero-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;color:var(--faint);font-size:.75rem;animation:bob 2.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* ============================== SECTIONS ============================== */
+.section{padding:5.5rem 1.5rem}
+.section--alt{background:var(--surface)}
+.container{max-width:1060px;margin:auto}
+.container--narrow{max-width:760px;margin:auto}
+.eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--primary);margin-bottom:.9rem}
+.section-title{font-size:clamp(1.9rem,1rem + 2.5vw,3.2rem);font-weight:300;color:var(--text);margin-bottom:1rem}
+.section-title em{font-style:italic;color:var(--primary)}
+.section-lead{font-size:clamp(1rem,.95rem + .25vw,1.15rem);color:var(--muted);max-width:700px;margin-bottom:3rem;font-family:var(--font-display);font-style:italic}
+.prose p{margin-bottom:1.1rem;color:var(--text)}
+.prose p:last-child{margin-bottom:0}
+
+/* ============================== DIVIDER ============================== */
+.rule{border:none;border-top:1px solid var(--divider);margin:3rem 0}
+
+/* ============================== CARDS GRID ============================== */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:1.25rem}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:1.25rem}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:1rem}
+
+/* ============================== METRIC CARD ============================== */
+.metric-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;transition:border-color .2s,box-shadow .2s}
+.metric-card:hover{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary-glow),var(--shadow-md)}
+.metric-card__wave{height:52px;width:100%}
+.metric-card__band{display:inline-flex;align-items:center;gap:.45rem;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.metric-card__band-dot{width:8px;height:8px;border-radius:50%}
+.metric-card__title{font-family:var(--font-display);font-size:1.3rem;font-weight:600;color:var(--text)}
+.metric-card__body{font-size:.9rem;color:var(--muted);line-height:1.6}
+.metric-card__footer{margin-top:auto;padding-top:.75rem;border-top:1px solid var(--divider);font-size:.8rem;color:var(--faint);font-style:italic}
+
+/* ============================== INSTRUMENT CARD ============================== */
+.instr-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;display:grid;grid-template-columns:auto 1fr;gap:1.25rem;align-items:start;transition:border-color .2s}
+.instr-card:hover{border-color:var(--secondary)}
+.instr-icon{width:52px;height:52px;border-radius:var(--radius-md);background:var(--secondary-glow);border:1px solid color-mix(in srgb,var(--secondary) 30%,transparent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.instr-card__label{font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--secondary);margin-bottom:.25rem}
+.instr-card__title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;color:var(--text);margin-bottom:.65rem}
+.instr-card__body{font-size:.9rem;color:var(--muted);line-height:1.65}
+
+/* ============================== MECHANISM ============================== */
+.mech-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+@media(max-width:680px){.mech-row{grid-template-columns:1fr}}
+.mech-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem}
+.mech-box__icon{font-size:1.75rem;margin-bottom:.75rem}
+.mech-box__title{font-family:var(--font-display);font-size:1.25rem;font-weight:600;margin-bottom:.5rem}
+.mech-box__body{font-size:.88rem;color:var(--muted);line-height:1.65}
+.mech-box--alpha{border-color:color-mix(in srgb,var(--green) 35%,transparent)}
+.mech-box--d1{border-color:color-mix(in srgb,var(--amber) 35%,transparent)}
+.mech-box--alpha .mech-box__title{color:var(--green)}
+.mech-box--d1 .mech-box__title{color:var(--amber)}
+
+/* ============================== INSIGHT BOX ============================== */
+.insight{background:linear-gradient(135deg,var(--surface-3),var(--surface-2));border:1px solid var(--primary);border-left:3px solid var(--primary);border-radius:var(--radius-lg);padding:1.75rem 2rem;margin:2rem 0}
+.insight__title{font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:var(--primary);margin-bottom:.65rem}
+.insight__body{font-size:.92rem;color:var(--muted);line-height:1.7}
+.insight--warn{border-color:var(--amber);border-left-color:var(--amber)}
+.insight--warn .insight__title{color:var(--amber)}
+.insight--ok{border-color:var(--green);border-left-color:var(--green)}
+.insight--ok .insight__title{color:var(--green)}
+
+/* ============================== PHASE TABLE ============================== */
+.phase-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:2rem}
+@media(max-width:620px){.phase-grid{grid-template-columns:1fr}}
+.phase-card{border-radius:var(--radius-lg);padding:1.5rem;border:1px solid}
+.phase-card--hyper{background:var(--red-dim);border-color:color-mix(in srgb,var(--red) 40%,transparent)}
+.phase-card--deplete{background:var(--amber-dim);border-color:color-mix(in srgb,var(--amber) 40%,transparent)}
+.phase-card__label{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem}
+.phase-card--hyper .phase-card__label{color:var(--red)}
+.phase-card--deplete .phase-card__label{color:var(--amber)}
+.phase-card__title{font-family:var(--font-display);font-size:1.35rem;font-weight:600;color:var(--text);margin-bottom:.75rem}
+.phase-tag{display:inline-flex;align-items:center;gap:.3rem;font-size:.78rem;font-weight:500;padding:.2rem .6rem;border-radius:999px;margin:.2rem .2rem 0 0}
+.phase-card--hyper .phase-tag{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red)}
+.phase-card--deplete .phase-tag{background:color-mix(in srgb,var(--amber) 18%,transparent);color:var(--amber)}
+.phase-card__body{font-size:.86rem;color:var(--muted);margin-top:.75rem;line-height:1.6}
+
+/* ============================== CALLOUT STRIP ============================== */
+.strip{background:linear-gradient(135deg,var(--surface-3) 0%,var(--surface-2) 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:3rem 1.5rem;margin:3.5rem 0}
+.strip-inner{max-width:820px;margin:auto;text-align:center}
+.strip-title{font-family:var(--font-display);font-size:clamp(1.5rem,1rem+2vw,2.4rem);font-weight:300;font-style:italic;color:var(--text);margin-bottom:.75rem}
+.strip-body{color:var(--muted);font-size:.95rem}
+
+/* ============================== FINAL SECTION ============================== */
+.final-card{background:linear-gradient(135deg,var(--surface-3),var(--surface-2));border:1px solid var(--border);border-radius:var(--radius-xl);padding:2.5rem;margin-top:2rem}
+.taxonomy-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.75rem}
+@media(max-width:560px){.taxonomy-grid{grid-template-columns:1fr}}
+.taxon{border-radius:var(--radius-lg);padding:1.25rem;border:1px solid}
+.taxon--deplete{background:var(--amber-dim);border-color:color-mix(in srgb,var(--amber) 35%,transparent)}
+.taxon--hyper{background:var(--red-dim);border-color:color-mix(in srgb,var(--red) 35%,transparent)}
+.taxon__label{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem}
+.taxon--deplete .taxon__label{color:var(--amber)}
+.taxon--hyper .taxon__label{color:var(--red)}
+.taxon__title{font-family:var(--font-display);font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:.45rem}
+.taxon__tags{display:flex;flex-wrap:wrap;gap:.3rem}
+.taxon__tag{font-size:.75rem;padding:.18rem .55rem;border-radius:999px;font-weight:500}
+.taxon--deplete .taxon__tag{background:color-mix(in srgb,var(--amber) 18%,transparent);color:var(--amber)}
+.taxon--hyper .taxon__tag{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red)}
+
+/* ============================== REFERENCE ============================== */
+.ref-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem 1.75rem}
+.ref-block p{font-size:.92rem;color:var(--muted);line-height:1.75}
+.ref-block strong{color:var(--text)}
+
+/* ============================== FOOTER ============================== */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5rem 1.5rem}
+.footer-inner{max-width:1060px;margin:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:1.5rem}
+.footer-col__title{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);margin-bottom:.5rem}
+.footer-col__body{font-size:.83rem;color:var(--muted);line-height:1.6}
+.footer-bottom{max-width:1060px;margin:1.5rem auto 0;padding-top:1.25rem;border-top:1px solid var(--divider);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem;font-size:.78rem;color:var(--faint)}
+
+/* ============================== UTILITIES ============================== */
+.mt-2{margin-top:.5rem} .mt-4{margin-top:1rem} .mt-6{margin-top:1.5rem}
+.mt-8{margin-top:2rem} .mt-10{margin-top:2.5rem} .mt-12{margin-top:3rem}
+.text-primary{color:var(--primary)} .text-secondary{color:var(--secondary)}
+.text-green{color:var(--green)} .text-amber{color:var(--amber)} .text-red{color:var(--red)}
+.italic{font-style:italic} .font-display{font-family:var(--font-display)}
+.radius-full{border-radius:999px}
+
+@media(max-width:500px){.nav-links{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand">CPF · EEG · Estresse</span>
+    <div class="nav-links">
+      <a href="#contexto">Contexto</a>
+      <a href="#metricas">EEG</a>
+      <a href="#instrumentos">Escalas</a>
+      <a href="#mecanismo">Stahl</a>
+      <a href="#curva">Curva U</a>
+      <a href="#aplicacao">Aplicação</a>
+      <a href="#conclusao">Conclusão</a>
+    </div>
+    <button class="theme-btn" data-theme-toggle aria-label="Alternar tema">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================================ HERO -->
+<header class="hero" id="topo">
+  <!-- Animated EEG background waves -->
+  <div class="hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1400 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wg1" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="var(--primary)" stop-opacity="0"/>
+          <stop offset="20%" stop-color="var(--primary)" stop-opacity="1"/>
+          <stop offset="80%" stop-color="var(--primary)" stop-opacity="1"/>
+          <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="wg2" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="var(--secondary)" stop-opacity="0"/>
+          <stop offset="20%" stop-color="var(--secondary)" stop-opacity="1"/>
+          <stop offset="80%" stop-color="var(--secondary)" stop-opacity="1"/>
+          <stop offset="100%" stop-color="var(--secondary)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <!-- Theta wave – slow, large -->
+      <polyline fill="none" stroke="url(#wg1)" stroke-width="1.5"
+        points="0,260 80,260 100,180 120,340 140,260 220,260 240,180 260,340 280,260 360,260 380,180 400,340 420,260 500,260 520,180 540,340 560,260 640,260 660,180 680,340 700,260 780,260 800,180 820,340 840,260 920,260 940,180 960,340 980,260 1060,260 1080,180 1100,340 1120,260 1200,260 1220,180 1240,340 1260,260 1400,260">
+        <animateTransform attributeName="transform" type="translate" from="0,0" to="-140,0" dur="2.8s" repeatCount="indefinite"/>
+      </polyline>
+      <!-- Alpha wave – medium -->
+      <polyline fill="none" stroke="url(#wg1)" stroke-width="1.2" opacity="0.7"
+        points="0,370 30,370 45,320 60,420 75,370 105,370 120,320 135,420 150,370 180,370 195,320 210,420 225,370 255,370 270,320 285,420 300,370 330,370 345,320 360,420 375,370 405,370 420,320 435,420 450,370 480,370 495,320 510,420 525,370 555,370 570,320 585,420 600,370 630,370 645,320 660,420 675,370 705,370 720,320 735,420 750,370 780,370 795,320 810,420 825,370 855,370 870,320 885,420 900,370 930,370 945,320 960,420 975,370 1005,370 1020,320 1035,420 1050,370 1080,370 1095,320 1110,420 1125,370 1155,370 1170,320 1185,420 1200,370 1230,370 1245,320 1260,420 1275,370 1400,370">
+        <animateTransform attributeName="transform" type="translate" from="0,0" to="-75,0" dur="1.8s" repeatCount="indefinite"/>
+      </polyline>
+      <!-- Beta wave – fast, small -->
+      <polyline fill="none" stroke="url(#wg2)" stroke-width="1" opacity="0.5"
+        points="0,150 18,150 24,130 30,170 36,150 54,150 60,130 66,170 72,150 90,150 96,130 102,170 108,150 126,150 132,130 138,170 144,150 162,150 168,130 174,170 180,150 198,150 204,130 210,170 216,150 234,150 240,130 246,170 252,150 270,150 276,130 282,170 288,150 306,150 312,130 318,170 324,150 342,150 348,130 354,170 360,150 378,150 384,130 390,170 396,150 414,150 420,130 426,170 432,150 450,150 456,130 462,170 468,150 486,150 492,130 498,170 504,150 522,150 528,130 534,170 540,150 558,150 564,130 570,170 576,150 594,150 600,130 606,170 612,150 630,150 636,130 642,170 648,150 666,150 672,130 678,170 684,150 702,150 708,130 714,170 720,150 738,150 744,130 750,170 756,150 774,150 780,130 786,170 792,150 810,150 816,130 822,170 828,150 846,150 852,130 858,170 864,150 882,150 888,130 894,170 900,150 918,150 924,130 930,170 936,150 954,150 960,130 966,170 972,150 990,150 996,130 1002,170 1008,150 1026,150 1032,130 1038,170 1044,150 1062,150 1068,130 1074,170 1080,150 1098,150 1104,130 1110,170 1116,150 1134,150 1140,130 1146,170 1152,150 1170,150 1176,130 1182,170 1188,150 1206,150 1212,130 1218,170 1224,150 1242,150 1248,130 1254,170 1260,150 1278,150 1284,130 1290,170 1296,150 1314,150 1320,130 1326,170 1332,150 1350,150 1356,130 1362,170 1368,150 1400,150">
+        <animateTransform attributeName="transform" type="translate" from="0,0" to="-36,0" dur=".95s" repeatCount="indefinite"/>
+      </polyline>
+      <!-- P300 spike -->
+      <polyline fill="none" stroke="url(#wg2)" stroke-width="2" opacity="0.6"
+        points="600,250 630,250 650,248 670,230 690,170 710,90 730,170 750,230 770,248 790,250 820,250">
+      </polyline>
+    </svg>
+  </div>
+
+  <p class="hero-eyebrow fi">Psicofarmacologia · Mestrado em Neurociências e Comportamento</p>
+  <h1 class="hero-title fi fi-d1">
+    O <em>Córtex Pré-Frontal</em> como Alvo de Análise
+  </h1>
+  <p class="hero-subtitle fi fi-d2">
+    Contribuições do Modelo Psicofarmacológico de Stahl para a Pesquisa com EEG sobre Estresse em Estudantes Universitários
+  </p>
+  <div class="hero-meta fi fi-d3">
+    <div class="hero-chip"><span class="dot"></span><span><strong>José Antônio de Souza Amador</strong> · Mestrando</span></div>
+    <div class="hero-chip"><span class="dot"></span><span>Prof. Dr. <strong>Caio Maximino</strong> · Psicofarmacologia</span></div>
+    <div class="hero-chip"><span class="dot"></span><span>PPGNC · UFPA · 2025</span></div>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">
+    <span>rolar</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</header>
+
+<!-- ============================================================ CONTEXTO -->
+<section class="section" id="contexto">
+  <div class="container">
+    <p class="eyebrow fi">Seção 1 · Problema de Pesquisa</p>
+    <h2 class="section-title fi fi-d1">Contexto e <em>Objetivo</em></h2>
+
+    <div class="prose fi fi-d2">
+      <p>A psicofarmacologia do transtorno de déficit de atenção e hiperatividade (TDAH), tal como sistematizada por Stahl (2013), oferece um modelo neurobiológico detalhado para compreender como a regulação dopaminérgica e noradrenérgica no córtex pré-frontal (CPF) determina a qualidade do processamento cognitivo. Embora apresentado para uma condição clínica, esse modelo pode ser transposto a outras populações com objetivos não clínicos, pois seus mecanismos moleculares descrevem princípios universais de modulação pré-frontal que se aplicam igualmente a indivíduos saudáveis submetidos a condições de estresse crônico — o alvo da minha pesquisa. Assim, busco apresentar como o modelo de Stahl (2013) pode constituir um referencial teórico para a minha dissertação de mestrado e tento conectar o modelo mecanicista à análise dos dados que serão obtidos.</p>
+    </div>
+
+    <div class="insight fi fi-d3 mt-8">
+      <div class="insight__title">Tese Central</div>
+      <div class="insight__body">O presente trabalho propõe que a disfunção cognitiva induzida pelo estresse é mediada por alterações nos circuitos do córtex pré-frontal (CPF), especificamente pela desregulação dos sistemas dopaminérgico e noradrenérgico que operam sob o princípio da <strong>curva U-invertida</strong>. Essas alterações produzem assinaturas eletrofisiológicas mensuráveis no EEG — razão teta/beta (TBR), assimetria alfa frontal (FAA), potência espectral teta, alfa e beta e o componente P300 — que, em conjunto com escalas de estresse percebido (PSS-10) e de fadiga (FMI-20), constituem um modelo multi-nível de avaliação do estado pré-frontal na população universitária.</div>
+    </div>
+
+    <hr class="rule">
+
+    <p class="eyebrow fi">Perfis Eletroencefalográficos</p>
+    <h3 class="section-title fi fi-d1" style="font-size:clamp(1.5rem,.9rem+2vw,2.4rem)">Perfis Eletroencefalográficos do <em>Estresse Percebido</em> em Universitários</h3>
+    <div class="prose fi fi-d2">
+      <p>O estresse crônico é uma das condições mais prevalentes entre estudantes universitários, com impacto documentado sobre desempenho cognitivo, bem-estar psicológico e funcionamento neurobiológico. Ainda que a relação entre estresse e cognição seja amplamente reconhecida, os mecanismos neurais subjacentes que conectam a experiência subjetiva de sobrecarga — quantificada por instrumentos como a Escala de Estresse Percebido (PSS-10) — à disfunção cognitiva objetiva permanecem pouco integrados na literatura, principalmente a brasileira.</p>
+      <p>A pesquisa de mestrado que conduzo busca analisar e caracterizar perfis eletroencefalográficos do estresse percebido em universitários, utilizando para tal algumas aferições e métricas eletroencefalográficas relacionados a perfis de estresse e fadiga (mental) comumente já usadas, mas de maneira integrada, no córtex pré-frontal.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ EEG METRICS -->
+<section class="section section--alt" id="metricas">
+  <div class="container">
+    <p class="eyebrow fi">Seção 2 · Delineamento</p>
+    <h2 class="section-title fi fi-d1">Métricas de <em>EEG</em> Analisadas</h2>
+    <p class="section-lead fi fi-d2">Quatro marcadores eletrofisiológicos integrados capturam o estado de sintonização do córtex pré-frontal, da banda espectral ao potencial evocado.</p>
+
+    <!-- Band power card -->
+    <div class="grid-3 mt-8">
+      <div class="metric-card fi fi-d1">
+        <!-- Mini EEG waves SVG -->
+        <svg class="metric-card__wave" viewBox="0 0 280 52" xmlns="http://www.w3.org/2000/svg">
+          <!-- Alpha 8-13Hz -->
+          <polyline fill="none" stroke="#4fc3f7" stroke-width="1.8" opacity="0.9"
+            points="0,26 20,26 30,10 40,42 50,26 70,26 80,10 90,42 100,26 120,26 130,10 140,42 150,26 170,26 180,10 190,42 200,26 220,26 230,10 240,42 250,26 280,26"/>
+          <!-- Beta 13-30Hz -->
+          <polyline fill="none" stroke="#b39ddb" stroke-width="1.2" opacity="0.7"
+            points="0,26 8,26 12,16 16,36 20,26 28,26 32,16 36,36 40,26 48,26 52,16 56,36 60,26 68,26 72,16 76,36 80,26 88,26 92,16 96,36 100,26 108,26 112,16 116,36 120,26 128,26 132,16 136,36 140,26 148,26 152,16 156,36 160,26 168,26 172,16 176,36 180,26 188,26 192,16 196,36 200,26 208,26 212,16 216,36 220,26 228,26 232,16 236,36 240,26 248,26 252,16 256,36 260,26 280,26"/>
+          <!-- Theta 4-8Hz -->
+          <polyline fill="none" stroke="#69f0ae" stroke-width="1.5" opacity="0.65"
+            points="0,26 35,26 52,6 70,46 88,26 120,26 140,6 158,46 176,26 210,26 228,6 246,46 264,26 280,26"/>
+        </svg>
+        <div>
+          <div class="metric-card__band">
+            <span class="metric-card__band-dot" style="background:var(--primary)"></span>
+            <span style="color:var(--primary)">Alfa · 8–13 Hz</span>
+          </div>
+          <div class="metric-card__band">
+            <span class="metric-card__band-dot" style="background:var(--secondary)"></span>
+            <span style="color:var(--secondary)">Beta · 13–30 Hz</span>
+          </div>
+          <div class="metric-card__band">
+            <span class="metric-card__band-dot" style="background:var(--green)"></span>
+            <span style="color:var(--green)">Teta · 4–8 Hz</span>
+          </div>
+        </div>
+        <div class="metric-card__title">Bandas Espectrais</div>
+        <div class="metric-card__body">
+          <strong style="color:var(--primary)">Alfa</strong> — calma, relaxamento profundo e atenção passiva.<br>
+          <strong style="color:var(--secondary)">Beta</strong> — concentração, foco e pensamento crítico ativo.<br>
+          <strong style="color:var(--green)">Teta</strong> — introspecção, criatividade e memória emocional.
+        </div>
+        <div class="metric-card__footer">Eletrodos: F3, F4 · Referência: auriculares</div>
+      </div>
+
+      <!-- FAA card -->
+      <div class="metric-card fi fi-d2">
+        <svg class="metric-card__wave" viewBox="0 0 280 52" xmlns="http://www.w3.org/2000/svg">
+          <!-- Left hemisphere (F3) — less alpha = more active -->
+          <polyline fill="none" stroke="#69f0ae" stroke-width="2" opacity="0.9"
+            points="0,26 25,26 35,18 45,34 55,26 80,26 90,18 100,34 110,26 140,26"/>
+          <!-- Right hemisphere (F4) — more alpha = less active -->
+          <polyline fill="none" stroke="#ef5350" stroke-width="2" opacity="0.9"
+            points="140,26 170,26 185,8 200,44 215,26 255,26 265,8 275,44 280,26"/>
+          <line x1="140" y1="4" x2="140" y2="48" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="65" y="49" font-size="9" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle">F3 (↓α → ↑ativação)</text>
+          <text x="210" y="49" font-size="9" fill="#ef5350" font-family="DM Sans,sans-serif" text-anchor="middle">F4 (↑α → ↓ativação)</text>
+        </svg>
+        <div class="metric-card__band">
+          <span class="metric-card__band-dot" style="background:var(--secondary)"></span>
+          <span style="color:var(--secondary)">Assimetria Alfa Frontal (FAA)</span>
+        </div>
+        <div class="metric-card__title">Assimetria Alfa Frontal</div>
+        <div class="metric-card__body">Marcador neurofisiológico dos sistemas motivacionais de <strong>aproximação</strong> e <strong>esquiva</strong>. A potência alfa é inversamente proporcional à atividade cortical. Valores positivos (α direita &gt; α esquerda) indicam maior ativação do hemisfério esquerdo — associado a aproximação, regulação emocional e afeto positivo. Valores negativos revelam maior ativação do hemisfério direito, correlacionando-se com retraimento, esquiva, reatividade ao estresse e sintomas de ansiedade e/ou depressão.</div>
+        <div class="metric-card__footer">Eletrodos: F3 e F4 · FAA = ln(αF4) − ln(αF3)</div>
+      </div>
+
+      <!-- TBR card -->
+      <div class="metric-card fi fi-d3">
+        <svg class="metric-card__wave" viewBox="0 0 280 52" xmlns="http://www.w3.org/2000/svg">
+          <!-- Large theta (high TBR) -->
+          <polyline fill="none" stroke="#69f0ae" stroke-width="2.5" opacity="0.9"
+            points="0,26 35,26 52,4 70,48 88,26 124,26 141,4 159,48 177,26 213,26 230,4 248,48 266,26 280,26"/>
+          <!-- Small beta (denominator) -->
+          <polyline fill="none" stroke="#b39ddb" stroke-width="1" opacity="0.6"
+            points="0,26 10,26 14,20 18,32 22,26 32,26 36,20 40,32 44,26 54,26 58,20 62,32 66,26 76,26 80,20 84,32 88,26 98,26 102,20 106,32 110,26 120,26 124,20 128,32 132,26 142,26 146,20 150,32 154,26 164,26 168,20 172,32 176,26 186,26 190,20 194,32 198,26 208,26 212,20 216,32 220,26 230,26 234,20 238,32 242,26 252,26 256,20 260,32 264,26 280,26"/>
+          <text x="140" y="12" font-size="10" fill="var(--green)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">↑ TBR = ↑ θ / ↓ β</text>
+        </svg>
+        <div class="metric-card__band">
+          <span class="metric-card__band-dot" style="background:var(--amber)"></span>
+          <span style="color:var(--amber)">Razão Teta/Beta (TBR)</span>
+        </div>
+        <div class="metric-card__title">Razão Teta/Beta</div>
+        <div class="metric-card__body">Biomarcador eletrofisiológico da relação entre controle executivo e prontidão cortical, amplamente utilizado para medir <strong>atenção sustentada</strong>. Valores elevados (excesso de frequências lentas sobre as rápidas) indicam subativação cortical — correlacionado a déficits de atenção, impulsividade e dificuldades no controle inibitório, observado frequentemente no TDAH. Valores baixos refletem maior alerta e ativação do CPF, com processos de controle cognitivo mais eficientes.</div>
+        <div class="metric-card__footer">Eletrodos: Cz · média de F3, F4, Fz</div>
+      </div>
+
+      <!-- P300 card -->
+      <div class="metric-card fi fi-d4" style="grid-column: 1/-1">
+        <svg class="metric-card__wave" viewBox="0 0 560 60" xmlns="http://www.w3.org/2000/svg">
+          <!-- Baseline -->
+          <line x1="0" y1="32" x2="560" y2="32" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- EEG trace with P300 at target -->
+          <polyline fill="none" stroke="var(--primary)" stroke-width="2"
+            points="0,32 30,32 35,30 40,34 45,32 80,32 85,30 90,35 95,32 130,32 135,33 140,30 145,34 150,32 180,32 185,29 190,35 195,32 210,32 215,30 220,35 225,32 240,32 250,30 260,35 270,32 280,32 290,30 300,35 310,32 320,32 325,29 330,35 335,32"/>
+          <!-- P300 spike (target stimulus) -->
+          <polyline fill="none" stroke="#ffd54f" stroke-width="2.5"
+            points="335,32 345,30 355,25 365,15 375,5 385,15 395,25 405,30 415,32 430,33 445,34 460,33 480,32 520,32"/>
+          <!-- N200 dip before P300 -->
+          <polyline fill="none" stroke="var(--primary)" stroke-width="2"
+            points="310,32 315,34 320,38 325,43 330,38 335,32"/>
+          <!-- Annotation: P300 amplitude -->
+          <line x1="375" y1="5" x2="375" y2="32" stroke="#ffd54f" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="420" y="12" font-size="10" fill="#ffd54f" font-family="DM Sans,sans-serif" font-weight="600">P300</text>
+          <text x="380" y="52" font-size="9" fill="var(--muted)" font-family="DM Sans,sans-serif">Latência (~281–380 ms)</text>
+          <text x="0" y="52" font-size="9" fill="var(--muted)" font-family="DM Sans,sans-serif">Estímulo padrão</text>
+          <text x="310" y="52" font-size="9" fill="#ffd54f" font-family="DM Sans,sans-serif">▲ Estímulo alvo (oddball)</text>
+          <!-- Amplitude arrow -->
+          <line x1="455" y1="5" x2="455" y2="32" stroke="#ffd54f" stroke-width="1" marker-end="url(#arr)"/>
+          <text x="462" y="20" font-size="9" fill="#ffd54f" font-family="DM Sans,sans-serif">Amplitude</text>
+        </svg>
+        <div class="metric-card__band">
+          <span class="metric-card__band-dot" style="background:var(--amber)"></span>
+          <span style="color:var(--amber)">Potencial Evocado P300 · ERP</span>
+        </div>
+        <div class="metric-card__title">Componente P300</div>
+        <div class="metric-card__body">Marcador neurofisiológico da <strong>alocação de recursos atencionais</strong> e da atualização da memória de trabalho. Indexa o processo de tomada de decisão e a categorização de um estímulo relevante em meio a distratores, surgindo como uma deflexão positiva quando o cérebro detecta uma mudança significativa ou um alvo esperado no ambiente — paradigma OddBall visual. Sua <strong>amplitude</strong> quantifica a intensidade do engajamento atencional despendido na tarefa; sua <strong>latência</strong> reflete a velocidade da eficiência neural no processamento e na avaliação da informação. Amplitude reduzida e latência aumentada correspondem à incapacidade de ativar adequadamente o CPFDL diante de estímulo cognitivamente relevante.</div>
+        <div class="metric-card__footer">Eletrodo: Pz (P3b — vias noradrenérgicas parietais)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ INSTRUMENTS -->
+<section class="section" id="instrumentos">
+  <div class="container">
+    <p class="eyebrow fi">Seção 3 · Escalas Psicométricas</p>
+    <h2 class="section-title fi fi-d1"><em>Instrumentos</em> Complementares</h2>
+    <p class="section-lead fi fi-d2">As escalas capturam as dimensões subjetivas da sobrecarga catecolaminérgica e do esgotamento pré-frontal, localizando cada participante na curva U-invertida de Stahl.</p>
+
+    <div class="grid-2 mt-6">
+      <div class="instr-card fi fi-d1">
+        <div class="instr-icon">🎚️</div>
+        <div>
+          <div class="instr-card__label">PSS-10 · Estresse Percebido</div>
+          <div class="instr-card__title">Perceived Stress Scale</div>
+          <div class="instr-card__body">Medida psicométrica global para avaliar o grau em que situações da vida são avaliadas como estressantes e o quanto o indivíduo se sente capaz de lidar com elas. Não mede estressores específicos, mas sim a <strong>percepção de controle e previsibilidade</strong>. Pontuações elevadas refletem sobrecarga cognitiva e emocional que ultrapassa a capacidade de enfrentamento. Em estudos neuroendócrinos, altos escores no PSS-10 correlacionam-se à desregulação do eixo HPA e a valores negativos do índice de assimetria alfa frontal. No modelo de Stahl, o PSS-10 captura a <strong>fase ativa</strong> de hiperativação catecolaminérgica — lado direito da curva U-invertida.</div>
+        </div>
+      </div>
+      <div class="instr-card fi fi-d2">
+        <div class="instr-icon">🪫</div>
+        <div>
+          <div class="instr-card__label">MFI-20 · Fadiga Multidimensional</div>
+          <div class="instr-card__title">Multidimensional Fatigue Inventory</div>
+          <div class="instr-card__body">Instrumento desenvolvido para quantificar a fadiga através de cinco dimensões: fadiga geral, física, mental, redução da atividade e redução da motivação. Distingue o cansaço fisiológico comum de estados de exaustão patológica, identificando se o comprometimento é predominantemente neuromuscular ou <strong>cognitivo-atencional</strong>. Na literatura clínica, correlaciona-se com alterações na conectividade funcional de redes de repouso. No modelo de Stahl, o MFI-20 captura a <strong>fase de depleção crônica</strong> — esgotamento dos estoques de DA/NE que move o sistema para o lado esquerdo da curva U-invertida.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ STAHL MECHANISM -->
+<section class="section section--alt" id="mecanismo">
+  <div class="container">
+    <p class="eyebrow fi">Seção 4 · O Modelo de Stahl (2013)</p>
+    <h2 class="section-title fi fi-d1">O Mecanismo de <em>Sintonização</em> do CPF</h2>
+    <p class="section-lead fi fi-d2">Da molécula ao comportamento: como α2A e D1 regulam a razão sinal-ruído nos neurônios piramidais pré-frontais.</p>
+
+    <div class="prose fi fi-d3 mt-6">
+      <p>O ponto central do modelo de Stahl (2013) é o conceito de <strong>sintonização</strong> (<em>tuning</em>) do CPF pela dopamina (DA) e pela noradrenalina (NE). Para que os neurônios piramidais corticais processem informações de forma eficiente, é necessária estimulação <strong>moderada e simultânea</strong> de dois receptores localizados nas espinhas dendríticas dessas células: o receptor adrenérgico α2A e o receptor dopaminérgico D1.</p>
+    </div>
+
+    <!-- Mechanism diagrams -->
+    <div class="mech-row mt-8">
+      <div class="mech-box mech-box--alpha fi fi-d1">
+        <div class="mech-box__icon">🟢</div>
+        <div class="mech-box__title">Receptor α2A — Amplifica o Sinal</div>
+        <!-- Mechanism SVG for alpha2A -->
+        <svg viewBox="0 0 260 140" style="width:100%;max-width:320px;margin:1rem 0" xmlns="http://www.w3.org/2000/svg">
+          <!-- Membrane -->
+          <rect x="0" y="60" width="260" height="18" rx="4" fill="#1a3a2a" opacity="0.7"/>
+          <text x="130" y="72" font-size="8" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle" opacity="0.7">MEMBRANA DENDRÍTICA</text>
+          <!-- NE molecule -->
+          <circle cx="60" cy="35" r="10" fill="none" stroke="#69f0ae" stroke-width="1.5"/>
+          <text x="60" y="39" font-size="8" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">NE</text>
+          <!-- Arrow NE to receptor -->
+          <line x1="60" y1="46" x2="60" y2="58" stroke="#69f0ae" stroke-width="1.5" marker-end="url(#arr-g)"/>
+          <!-- Receptor alpha2A -->
+          <rect x="35" y="55" width="50" height="25" rx="4" fill="#1a3a2a" stroke="#69f0ae" stroke-width="1.5"/>
+          <text x="60" y="71" font-size="8" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">α2A-AR</text>
+          <!-- Gi protein -->
+          <ellipse cx="60" cy="95" rx="22" ry="10" fill="#132e1e" stroke="#69f0ae" stroke-width="1"/>
+          <text x="60" y="99" font-size="7.5" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle">Gi ↓AMPc</text>
+          <line x1="60" y1="80" x2="60" y2="85" stroke="#69f0ae" stroke-width="1.2"/>
+          <!-- HCN channel -->
+          <rect x="130" y="55" width="40" height="25" rx="4" fill="#132e1e" stroke="#69f0ae" stroke-width="1.5"/>
+          <text x="150" y="66" font-size="7" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">Canal</text>
+          <text x="150" y="75" font-size="7" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">HCN 🔒</text>
+          <!-- Arrow from Gi to HCN -->
+          <path d="M 82,92 Q 150,92 150,82" fill="none" stroke="#69f0ae" stroke-width="1.2" stroke-dasharray="3,2"/>
+          <!-- Outcome -->
+          <rect x="100" y="108" width="130" height="25" rx="4" fill="#1a3a2a" stroke="#69f0ae" stroke-width="1"/>
+          <text x="165" y="119" font-size="8" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">✓ Sinal Transmitido</text>
+          <text x="165" y="129" font-size="7" fill="#69f0ae" font-family="DM Sans,sans-serif" text-anchor="middle">Conectividade fortalecida</text>
+          <defs>
+            <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#69f0ae"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="mech-box__body">O α2A acopla-se à <strong>proteína G inibitória (Gi)</strong>, que, ativada pela NE em níveis moderados, <strong>inibe a produção de AMPc</strong>. Com a queda do AMPc intracelular, os canais HCN permanecem <strong>fechados</strong>. O sinal de entrada que chega à espinha dendrítica <strong>sobrevive e é transmitido</strong> ao corpo celular — equivale a aumentar o <em>sinal</em> na razão sinal-ruído do CPF.</div>
+      </div>
+
+      <div class="mech-box mech-box--d1 fi fi-d2">
+        <div class="mech-box__icon">🟡</div>
+        <div class="mech-box__title">Receptor D1 — Suprime o Ruído</div>
+        <svg viewBox="0 0 260 140" style="width:100%;max-width:320px;margin:1rem 0" xmlns="http://www.w3.org/2000/svg">
+          <!-- Membrane -->
+          <rect x="0" y="60" width="260" height="18" rx="4" fill="#3a2a0a" opacity="0.7"/>
+          <text x="130" y="72" font-size="8" fill="#ffd54f" font-family="DM Sans,sans-serif" text-anchor="middle" opacity="0.7">MEMBRANA DENDRÍTICA</text>
+          <!-- DA molecule -->
+          <circle cx="60" cy="35" r="10" fill="none" stroke="#ffd54f" stroke-width="1.5"/>
+          <text x="60" y="39" font-size="8" fill="#ffd54f" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">DA</text>
+          <line x1="60" y1="46" x2="60" y2="58" stroke="#ffd54f" stroke-width="1.5"/>
+          <!-- Receptor D1 -->
+          <rect x="35" y="55" width="50" height="25" rx="4" fill="#3a2a0a" stroke="#ffd54f" stroke-width="1.5"/>
+          <text x="60" y="71" font-size="8" fill="#ffd54f" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">D1R</text>
+          <!-- Gs protein -->
+          <ellipse cx="60" cy="95" rx="22" ry="10" fill="#2e1e08" stroke="#ffd54f" stroke-width="1"/>
+          <text x="60" y="99" font-size="7.5" fill="#ffd54f" font-family="DM Sans,sans-serif" text-anchor="middle">Gs ↑AMPc</text>
+          <line x1="60" y1="80" x2="60" y2="85" stroke="#ffd54f" stroke-width="1.2"/>
+          <!-- HCN channel open -->
+          <rect x="130" y="55" width="40" height="25" rx="4" fill="#2e1e08" stroke="#ffd54f" stroke-width="1.5"/>
+          <text x="150" y="66" font-size="7" fill="#ffd54f" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">Canal</text>
+          <text x="150" y="75" font-size="7" fill="#ffd54f" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">HCN 🔓</text>
+          <path d="M 82,92 Q 150,92 150,82" fill="none" stroke="#ffd54f" stroke-width="1.2" stroke-dasharray="3,2"/>
+          <!-- Outcome -->
+          <rect x="100" y="108" width="130" height="25" rx="4" fill="#3a2a0a" stroke="#ffd54f" stroke-width="1"/>
+          <text x="165" y="119" font-size="8" fill="#ffd54f" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">⚡ Ruído Suprimido</text>
+          <text x="165" y="129" font-size="7" fill="#ffd54f" font-family="DM Sans,sans-serif" text-anchor="middle">Sinais irrelevantes extravasam</text>
+        </svg>
+        <div class="mech-box__body">O D1 acopla-se à <strong>proteína G estimuladora (Gs)</strong>, que, ativada pela DA em níveis moderados, <strong>aumenta o AMPc</strong> e promove a <strong>abertura parcial dos canais HCN</strong>. Isso produz extravasamento seletivo dos sinais de entrada menos relevantes, reduzindo o <em>ruído</em> cognitivo sem comprometer o processamento dos estímulos relevantes. A função das células piramidais atinge seu ápice quando α2A amplifica o sinal <em>e</em> D1 suprime o ruído simultaneamente.</div>
+      </div>
+    </div>
+
+    <div class="insight fi fi-d3 mt-8">
+      <div class="insight__title">A Regra da Moderação — Stahl (2013)</div>
+      <div class="insight__body">No lado <strong>esquerdo</strong> da curva (DA e NE muito baixas): todos os sinais de entrada ficam indiferenciados, impedindo o foco atencional — o indivíduo não consegue focar em nenhuma tarefa. No lado <strong>direito</strong> (DA e NE muito altas, como sob estresse agudo): receptores adicionais são recrutados (α1, β1 para NE; D1 em intensidade excessiva para DA), o AMPc dispara, os canais HCN se abrem de forma generalizada, e tanto o sinal quanto o ruído são extravasados. O resultado líquido é idêntico: <strong>perda do controle cognitivo pré-frontal</strong>. Para os neurônios piramidais corticais, <em>a moderação é, certamente, o caminho</em> (Stahl, 2013).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ U-CURVE -->
+<section class="section" id="curva">
+  <div class="container">
+    <p class="eyebrow fi">Seção 5 · O Princípio Central</p>
+    <h2 class="section-title fi fi-d1">A Curva <em>U-Invertida</em></h2>
+    <p class="section-lead fi fi-d2">O CPF funciona de forma ótima apenas com estimulação moderada de α2A e D1. Tanto o déficit quanto o excesso produzem a mesma disfunção cognitiva — por mecanismos opostos.</p>
+
+    <!-- Large inverted-U SVG diagram -->
+    <div class="fi fi-d2" style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;margin-top:1.5rem;overflow:hidden">
+      <svg viewBox="0 0 700 320" style="width:100%;max-height:420px" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="curveGrad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stop-color="#ef5350"/>
+            <stop offset="30%" stop-color="#ffd54f"/>
+            <stop offset="50%" stop-color="#69f0ae"/>
+            <stop offset="70%" stop-color="#ffd54f"/>
+            <stop offset="100%" stop-color="#ef5350"/>
+          </linearGradient>
+          <!-- Zone fills -->
+          <linearGradient id="leftZone" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stop-color="#ef5350" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#ef5350" stop-opacity="0.04"/>
+          </linearGradient>
+          <linearGradient id="rightZone" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stop-color="#ef5350" stop-opacity="0.04"/>
+            <stop offset="100%" stop-color="#ef5350" stop-opacity="0.12"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Background zones -->
+        <rect x="60" y="20" width="195" height="230" rx="6" fill="url(#leftZone)"/>
+        <rect x="440" y="20" width="200" height="230" rx="6" fill="url(#rightZone)"/>
+        <rect x="255" y="20" width="190" height="230" rx="6" fill="rgba(105,240,174,0.06)"/>
+
+        <!-- Grid lines -->
+        <line x1="60" y1="250" x2="640" y2="250" stroke="var(--border)" stroke-width="1"/>
+        <line x1="60" y1="20" x2="60" y2="265" stroke="var(--border)" stroke-width="1"/>
+
+        <!-- Y-axis label -->
+        <text x="15" y="140" font-size="11" fill="var(--muted)" font-family="DM Sans,sans-serif" transform="rotate(-90,15,140)" text-anchor="middle">Função do CPF</text>
+
+        <!-- X-axis label -->
+        <text x="350" y="290" font-size="11" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">Nível de DA / NE (estimulação de D1 e α2A)</text>
+
+        <!-- The parabola curve -->
+        <polyline fill="none" stroke="url(#curveGrad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
+          points="65,240 80,228 95,215 110,202 125,188 140,173 155,158 170,143 185,129 200,115 215,103 230,92 245,82 260,74 275,67 290,62 305,58 320,55 335,54 350,54 365,56 380,60 395,65 410,72 425,81 440,91 455,103 470,116 485,130 500,145 515,160 530,175 545,190 560,204 575,217 590,229 605,240 620,248 635,248"/>
+
+        <!-- Optimal zone dashed vertical lines -->
+        <line x1="255" y1="250" x2="255" y2="54" stroke="var(--green)" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+        <line x1="445" y1="250" x2="445" y2="54" stroke="var(--green)" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+
+        <!-- Apex marker -->
+        <circle cx="350" cy="54" r="7" fill="var(--green)" stroke="var(--bg)" stroke-width="2"/>
+        <text x="350" y="44" font-size="9.5" fill="var(--green)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="700">ÁPICE — CPF Ideal</text>
+        <text x="350" y="32" font-size="8.5" fill="var(--green)" font-family="DM Sans,sans-serif" text-anchor="middle">α2A ↑sinal · D1 ↓ruído</text>
+
+        <!-- LEFT zone annotations -->
+        <text x="158" y="42" font-size="10" fill="var(--red)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="700">DÉFICIT</text>
+        <text x="158" y="56" font-size="8.5" fill="var(--red)" font-family="DM Sans,sans-serif" text-anchor="middle">DA/NE muito baixas</text>
+        <text x="158" y="70" font-size="8" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">Todos os sinais iguais</text>
+        <text x="158" y="82" font-size="8" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">↑ Ruído · ↓ Sinal</text>
+        <!-- LEFT EEG markers -->
+        <rect x="70" y="160" width="175" height="75" rx="6" fill="rgba(255,213,79,0.07)" stroke="rgba(255,213,79,0.2)" stroke-width="1"/>
+        <text x="157" y="176" font-size="8.5" fill="var(--amber)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">EEG — Fase de Depleção</text>
+        <text x="157" y="190" font-size="7.5" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">TBR ↑↑ · θ frontal ↑↑ · P300 ↓</text>
+        <text x="157" y="204" font-size="7.5" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">FAA negativa</text>
+        <text x="157" y="218" font-size="7.5" fill="var(--amber)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">🪫 MFI-20 alto</text>
+        <text x="157" y="230" font-size="7" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">Estresse crônico + depleção</text>
+
+        <!-- RIGHT zone annotations -->
+        <text x="538" y="42" font-size="10" fill="var(--red)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="700">EXCESSO</text>
+        <text x="538" y="56" font-size="8.5" fill="var(--red)" font-family="DM Sans,sans-serif" text-anchor="middle">DA/NE muito altas</text>
+        <text x="538" y="70" font-size="8" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">α1, β1 recrutados</text>
+        <text x="538" y="82" font-size="8" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">HCN abertos → tudo extravasado</text>
+        <!-- RIGHT EEG markers -->
+        <rect x="450" y="160" width="178" height="75" rx="6" fill="rgba(239,83,80,0.07)" stroke="rgba(239,83,80,0.2)" stroke-width="1"/>
+        <text x="539" y="176" font-size="8.5" fill="var(--red)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">EEG — Fase de Hiperativação</text>
+        <text x="539" y="190" font-size="7.5" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">TBR ↑ · β ↑↑ · P300 ↓ · α ↓</text>
+        <text x="539" y="204" font-size="7.5" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">FAA comprometida</text>
+        <text x="539" y="218" font-size="7.5" fill="var(--red)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">⚡ PSS-10 alto</text>
+        <text x="539" y="230" font-size="7" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">Estresse agudo / descarga fásica</text>
+
+        <!-- CENTER optimal -->
+        <rect x="258" y="160" width="184" height="75" rx="6" fill="rgba(105,240,174,0.07)" stroke="rgba(105,240,174,0.2)" stroke-width="1"/>
+        <text x="350" y="176" font-size="8.5" fill="var(--green)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">EEG — Zona Ótima</text>
+        <text x="350" y="190" font-size="7.5" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">TBR baixo · P300 amplitude ↑</text>
+        <text x="350" y="204" font-size="7.5" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">FAA positiva · β regulado</text>
+        <text x="350" y="218" font-size="7.5" fill="var(--green)" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">✓ PSS-10 e MFI-20 baixos</text>
+        <text x="350" y="230" font-size="7" fill="var(--muted)" font-family="DM Sans,sans-serif" text-anchor="middle">Cognição pré-frontal eficiente</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ STRIP -->
+<div class="strip">
+  <div class="strip-inner fi">
+    <div class="strip-title">"Para que o córtex pré-frontal atue adequadamente, é necessário haver estimulação moderada dos receptores α₂ pela NA e dos receptores D1 pela DA."</div>
+    <div class="strip-body">Stahl (2013, p. 472) — A moderação como princípio universal de eficiência pré-frontal</div>
+  </div>
+</div>
+
+<!-- ============================================================ APPLICATION -->
+<section class="section" id="aplicacao">
+  <div class="container">
+    <p class="eyebrow fi">Seção 6 · Aplicação à Pesquisa</p>
+    <h2 class="section-title fi fi-d1">Estresse Acadêmico como <em>Dessintonização</em> Catecolaminérgica</h2>
+
+    <div class="prose fi fi-d2 mt-4">
+      <p>A aplicação desse modelo à pesquisa com estudantes universitários é direta. Stahl (2013) descreve explicitamente que o estresse pode ativar os circuitos de NE e DA no CPF, produzindo excesso de <strong>descarga fásica</strong> desses neurotransmissores. Esse estado — que o autor denomina de "ativação excessiva" — implica estimulação de D1 além do ótimo e recrutamento de α1 e β1 em detrimento do α2A, movendo o sistema para o lado direito da curva U-invertida e "desativando" funcionalmente o CPF.</p>
+      <p>Com a cronicidade do estresse, os estoques de NE e DA se esgotam progressivamente por depleção tônica: os níveis passam a cair abaixo do ótimo, movendo o sistema para o lado esquerdo da curva. O CPF, agora privado de estimulação adequada de α2A e D1, perde a capacidade de gerar tanto o sinal quanto de suprimir o ruído — condição que Stahl (2013) associa ao perfil cognitivo mais debilitante do TDAH em adultos sob estresse crônico.</p>
+    </div>
+
+    <!-- Two phase cards -->
+    <div class="phase-grid fi fi-d3 mt-8">
+      <div class="phase-card phase-card--hyper">
+        <div class="phase-card__label">⚡ Fase 1 — Ativação Excessiva</div>
+        <div class="phase-card__title">Hiperativação Catecolaminérgica</div>
+        <div style="margin-top:.5rem;display:flex;flex-wrap:wrap">
+          <span class="phase-tag">PSS-10 ↑↑</span>
+          <span class="phase-tag">Estresse agudo/subagudo</span>
+          <span class="phase-tag">DA/NE fásica ↑</span>
+          <span class="phase-tag">α1 · β1 recrutados</span>
+          <span class="phase-tag">D1 superestimulado</span>
+        </div>
+        <div style="margin-top:.75rem;margin-bottom:.3rem;font-size:.78rem;font-weight:600;color:var(--red)">Perfil de EEG esperado:</div>
+        <div style="display:flex;flex-wrap:wrap">
+          <span class="phase-tag">TBR ↑</span>
+          <span class="phase-tag">β frontal ↑↑</span>
+          <span class="phase-tag">α ↓</span>
+          <span class="phase-tag">P300 ↓ amplitude</span>
+          <span class="phase-tag">FAA comprometida</span>
+        </div>
+        <div class="phase-card__body">O estresse move o sistema para o lado <strong>direito</strong> da curva U-invertida: HCN abertos generalizadamente, sinal e ruído extravasados. O CPF é funcionalmente desativado. O MFI-20 ainda pode estar moderado (não há depleção ainda).</div>
+      </div>
+
+      <div class="phase-card phase-card--deplete">
+        <div class="phase-card__label">🪫 Fase 2 — Depleção Crônica</div>
+        <div class="phase-card__title">Esgotamento Catecolaminérgico</div>
+        <div style="margin-top:.5rem;display:flex;flex-wrap:wrap">
+          <span class="phase-tag">PSS-10 ↑↑</span>
+          <span class="phase-tag">MFI-20 ↑↑</span>
+          <span class="phase-tag">Estresse crônico prolongado</span>
+          <span class="phase-tag">DA/NE depletadas</span>
+          <span class="phase-tag">α2A e D1 subativados</span>
+        </div>
+        <div style="margin-top:.75rem;margin-bottom:.3rem;font-size:.78rem;font-weight:600;color:var(--amber)">Perfil de EEG esperado:</div>
+        <div style="display:flex;flex-wrap:wrap">
+          <span class="phase-tag">TBR ↑↑</span>
+          <span class="phase-tag">θ frontal ↑↑</span>
+          <span class="phase-tag">P300 ↓↓ amplitude</span>
+          <span class="phase-tag">Latência P300 ↑</span>
+          <span class="phase-tag">FAA negativa</span>
+        </div>
+        <div class="phase-card__body">O estresse crônico move o sistema para o lado <strong>esquerdo</strong> da curva: estoques de DA/NE esgotados, sinais indistinguíveis, ruído elevado. O CPF perde capacidade de sinal <em>e</em> de supressão de ruído simultaneamente. O MFI-20 alto é o marcador subjetivo desta fase.</div>
+      </div>
+    </div>
+
+    <div class="insight fi fi-d4 mt-8">
+      <div class="insight__title">Implicação Metodológica Direta</div>
+      <div class="insight__body">O EEG basal — especialmente o TBR em eletrodos frontais e o alfa em F3/F4 — funciona como um <strong>índice eletrofisiológico da posição de cada participante na curva U-invertida</strong>: TBR elevado com alfa reduzido + beta aumentado na fase de hiperativação; TBR elevado com theta acentuado + P300 reduzido na fase de depleção. O P300 em Pz reflete a eficiência funcional dos circuitos corticoestriadotalamocorticais (CETC) que Stahl (2013) descreve como dependentes do CPFDL para a manutenção da atenção — o mesmo circuito recrutado pela tarefa OddBall visual. A PSS-10 e o MFI-20, juntos, permitem localizar empiricamente os participantes na curva de Stahl e <strong>predizer o perfil de EEG esperado</strong>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CONCLUSIONS -->
+<section class="section section--alt" id="conclusao">
+  <div class="container">
+    <p class="eyebrow fi">Seção 7 · Considerações Finais</p>
+    <h2 class="section-title fi fi-d1">O Modelo como <em>Substrato</em> de Análise</h2>
+
+    <div class="prose fi fi-d2 mt-4">
+      <p>O modelo de Stahl (2013) fornece o substrato molecular que justifica por que as métricas de EEG escolhidas — TBR, FAA e P300 — são sensíveis ao estresse acadêmico: todas elas indexam, por vias distintas, o estado de sintonização dos neurônios piramidais pré-frontais pelos receptores α2A e D1. A identificação de subgrupos com perfis de EEG compatíveis com depleção ou hiperativação — seguindo a taxonomia implícita no modelo de Stahl (2013) — representaria contribuição de relevância científica, pois delinearia, com precisão eletrofisiológica, os perfis e os mecanismos pelos quais o estresse compromete a função cognitiva na população universitária, além de servir de substrato para possíveis intervenções clínicas e farmacológicas à luz da ética e da ciência.</p>
+    </div>
+
+    <!-- Taxonomy boxes -->
+    <div class="taxonomy-grid fi fi-d3 mt-6">
+      <div class="taxon taxon--deplete">
+        <div class="taxon__label">Perfil de Depleção — Fase Esquerda</div>
+        <div class="taxon__title">Esgotamento Pré-Frontal</div>
+        <div class="taxon__tags">
+          <span class="taxon__tag">TBR ↑↑</span>
+          <span class="taxon__tag">θ frontal ↑↑</span>
+          <span class="taxon__tag">P300 ↓↓</span>
+          <span class="taxon__tag">Latência ↑</span>
+          <span class="taxon__tag">MFI-20 alto</span>
+          <span class="taxon__tag">Estresse crônico</span>
+        </div>
+      </div>
+      <div class="taxon taxon--hyper">
+        <div class="taxon__label">Perfil de Hiperativação — Fase Direita</div>
+        <div class="taxon__title">Sobrecarga Catecolaminérgica</div>
+        <div class="taxon__tags">
+          <span class="taxon__tag">TBR ↑</span>
+          <span class="taxon__tag">β ↑↑</span>
+          <span class="taxon__tag">α ↓</span>
+          <span class="taxon__tag">P300 ↓ amplitude</span>
+          <span class="taxon__tag">PSS-10 alto</span>
+          <span class="taxon__tag">Estresse agudo</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rule">
+
+    <!-- Reference -->
+    <p class="eyebrow fi" id="referencia">Referência</p>
+    <div class="ref-block fi fi-d1 mt-4">
+      <p><strong>Stahl, S. M.</strong> (2013). <em>Stahl's essential psychopharmacology: Neuroscientific basis and practical applications</em> (4th ed.). Cambridge University Press.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-col__title">Apresentação</div>
+      <div class="footer-col__body">Disciplina de Psicofarmacologia<br>Programa de Pós-Graduação em Neurociências e Comportamento — PPGNC<br>Universidade Federal do Pará (UFPA)</div>
+    </div>
+    <div>
+      <div class="footer-col__title">Autor</div>
+      <div class="footer-col__body">José Antônio de Souza Amador<br>Mestrando em Neurociências e Comportamento<br>Orientação: Prof. Dr. Caio Maximino</div>
+    </div>
+    <div>
+      <div class="footer-col__title">Sobre o Conteúdo</div>
+      <div class="footer-col__body">Esta apresentação integra o modelo psicofarmacológico de Stahl (2013) ao delineamento de pesquisa de EEG em estudantes universitários, propondo uma taxonomia eletrofisiológica do estresse acadêmico baseada na curva U-invertida catecolaminérgica.</div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>PPGNC · UFPA · Psicofarmacologia · 2025</span>
+    <span>Stahl, S.M. (2013) · <em>Essential Psychopharmacology</em></span>
+  </div>
+</footer>
+
+<script>
+// ---- Theme toggle ----
+(function(){
+  const btn = document.querySelector('[data-theme-toggle]');
+  const root = document.documentElement;
+  let theme = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.setAttribute('data-theme', theme);
+  function updateIcon(){
+    if(!btn) return;
+    btn.innerHTML = theme === 'dark'
+      ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  }
+  updateIcon();
+  if(btn) btn.addEventListener('click', () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', theme);
+    updateIcon();
+  });
+})();
+
+// ---- Scroll fade-in ----
+(function(){
+  const els = document.querySelectorAll('.fi');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(e => e.classList.add('visible')); return;
+  }
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }});
+  }, {threshold:0.1, rootMargin:'0px 0px -40px 0px'});
+  els.forEach(e => obs.observe(e));
+  // Hero elements visible immediately
+  document.querySelectorAll('.hero .fi').forEach(e => {
+    setTimeout(() => e.classList.add('visible'), parseInt(getComputedStyle(e).transitionDelay||'0')*1000 + 50);
+  });
+})();
+</script>
+</body>
+</html>
